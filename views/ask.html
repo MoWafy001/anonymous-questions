@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask</title>
+    <script>
+        const postData = async (url, data) => {
+            const rawResponse = await fetch(url, {
+                method: 'POST',
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            return rawResponse.status;
+        };
+    </script>
+</head>
+<body>
+    <h2>Ask <%= username %> what you want.</h2>
+    <textarea id="question" cols="50" rows="10" maxlength="300"></textarea>
+    <button id="sendQuestion">send</button>
+
+    <script>
+        document.querySelector("#sendQuestion").addEventListener("click", ()=>{
+            if(document.querySelector("#question").value)
+                postData(document.URL, {question: document.querySelector("#question").value}).then(
+                    res=>{
+                        console.log(res);
+                        if (res === 200) {
+                            alert("Message has been sent successfully");
+                            document.querySelector("#question").value = ""
+                        }else{
+                            alert("failed");
+                        }
+                    }
+                )
+        })
+    </script>
+</body>
+</html>

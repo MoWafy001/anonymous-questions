@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <form method="post" onsubmit="
+        const username = document.querySelector('#username').value;
+        const password = document.querySelector('#password').value;
+        document.cookie = `username=${username};`
+        document.cookie = `password=${password};`
+        console.log(document.cookie);">
+        <h2>Register</h2>
+        <input id="username" name="username" type="text" placeholder="username" required>
+        <input id="email" name="email" type="email" placeholder="email" required>
+        <input id="password" name="password" type="pass" placeholder="password" required>
+        <input type="submit" value="register">
+        <a href="/login">login</a>
+    </form>
+    <% if (error) { %>
+        <h3 style="color: red;"><%= error %> </h3>
+        <script>
+            document.cookie = "username;max-age=0";
+            document.cookie = "username;max-age=0";
+            document.cookie.split(";").forEach(cookie=>{
+                document.cookie = `${cookie};max-age=0`
+            })
+        </script>
+    <% } %>
+</body>
+</html>

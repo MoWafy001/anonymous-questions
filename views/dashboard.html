@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= username %></title>
+    <script>
+        var current_user = "<%= username %>";
+        var link = document.URL+"/ask";
+        var page = 0;
+
+        const postData = async (url, data) => {
+            const rawResponse = await fetch(url, {
+                method: 'POST',
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            return rawResponse.status;
+        };
+
+
+        if (!document.cookie || document.cookie.split(";").length < 2) {
+            document.location.replace("/login")
+        }else{
+            data = {
+                username:null,
+                password:null,
+                dontredirect: true
+            }
+            document.cookie.replace(" ","").split(";").forEach(item=>{
+                const i = item.split("=")
+                if (i[0]=="username")
+                    data.username = i[1]
+                else if (i[0]=="password")
+                    data.password = i[1]
+            })
+            postData("/login", data).then((status)=>{
+                if (status!==200)
+                    document.location.replace("/login")
+                else{
+                    if (data.username!==current_user)
+                        document.location.replace("/u/"+data.username)
+                    else
+                        document.body.style.cssText = "";                    
+                }
+            });
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+
+            document.body.removeChild(textArea);
+            }
+            function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+    </script>
+</head>
+<body style="display: none;">
+    welcome <%= username %>
+    <p>your link</p>
+    <a id="link" href=""></a>
+    <button onclick="fallbackCopyTextToClipboard(document.querySelector('#link').textContent);">copy to clipboard</button>
+    <script>
+        document.querySelector("#link").textContent = link;
+        document.querySelector("#link").href = link;
+    </script>
+    <section>
+        <h3>Questions</h3>
+        <ul id="questions"></ul>
+        <button onclick="page>0 && page--;updateQuestions()">back</button>
+        <button onclick="document.querySelector('ul').children.length==10 && page++;updateQuestions();">next</button>
+    </section>
+
+    <script>
+        const updateQuestions = ()=>{
+            data.page = page;
+            fetch("/questions", {
+                method: 'POST',
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(res=>{
+                if (res.status===200) {
+                    res.json().then(questions=>{
+                        const frag = document.createDocumentFragment()
+                        questions.forEach(question=>{
+                            const li = document.createElement('li');
+                            li.textContent = question.question;
+                            frag.append(li);
+                        })
+                        document.querySelector("#questions").innerHTML = "";
+                        document.querySelector("#questions").append(frag);
+                    })
+                }else{
+                    document.querySelector("#questions").textContent = "Unauthorized";
+                }
+            });
+        }
+        updateQuestions()
+    </script>
+</body>
+</html>

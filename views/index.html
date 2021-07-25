@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wait..</title>
+</head>
+<body>
+    <p>doing something...</p>
+    <script>
+        const postData = async (url, data) => {
+            const rawResponse = await fetch(url, {
+                method: 'POST',
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            return rawResponse.status;
+        };
+
+
+        if (!document.cookie || document.cookie.split(";").length < 2) {
+            document.location.replace("/login")
+        }else{
+            document.querySelector("p").innerHTML+="<br>found a cookie!<br>trying to login..."
+            data = {
+                username:null,
+                password:null,
+                dontredirect: true
+            }
+            document.cookie.replace(" ","").split(";").forEach(item=>{
+                const i = item.split("=")
+                if (i[0]=="username")
+                    data.username = i[1]
+                else if (i[0]=="password")
+                    data.password = i[1]
+            })
+            console.log(data);
+            postData("/login", data).then((status)=>{
+                if (status!==200) {
+                    document.location.replace("/login")
+                }else{
+                    document.location.replace("/u/"+data.username)
+                }
+            });
+        }
+    </script>
+</body>
+</html>
