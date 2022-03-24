@@ -1,4 +1,4 @@
-This is an app where you can write a question and let people answer it anonymouslly. Only the question creator need to create an account, so that the answers will be sent to his/her email inbox
+This is an app where you can write a question and let people answer it anonymously. Only the question creator need to create an account, so that the answers will be sent to his/her email inbox
 
 # Env Variables
 
